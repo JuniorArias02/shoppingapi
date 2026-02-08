@@ -1,0 +1,17 @@
+      
+  Dropping all tables  997.05ms DONE
+
+   INFO  Preparing database.  
+
+  Creating migration table  41.98ms DONE
+
+   INFO  Running migrations.  
+
+  2026_01_01_000000_create_shop_tables  6s DONE
+
+
+   INFO  Seeding database.  
+
+  Database\Seeders\RoleSeeder  RUNNING  
+  Database\Seeders\RoleSeeder  10 ms DONE  
+
