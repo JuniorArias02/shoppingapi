@@ -19,7 +19,10 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['http://localhost:5173'], // Explicit origin needed for credentials
+    'allowed_origins' => [
+        'http://localhost:5173',
+        'https://shoppingcucuta.vercel.app',
+    ], // Explicit origin needed for credentials
 
     'allowed_origins_patterns' => [],
 
