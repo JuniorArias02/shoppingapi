@@ -21,11 +21,39 @@ class WompiService
             : 'https://sandbox.wompi.co/v1';
     }
 
-    public function generateIntegritySignature(string $reference, int $amountInCents, string $currency): string
+    /**
+     * Generate Wompi Integrity Signature
+     * Returns array with 'integrity' hash and 'expiration_time' timestamp
+     * 
+     * @param string $reference
+     * @param int $amountInCents
+     * @param string $currency
+     * @return array ['integrity' => string, 'expiration_time' => int]
+     */
+    public function generateIntegritySignature(string $reference, int $amountInCents, string $currency): array
     {
-        $signatureString = "{$reference}{$amountInCents}{$currency}{$this->integritySecret}";
-        \Illuminate\Support\Facades\Log::info("Wompi Signature String: " . $signatureString);
-        return hash('sha256', $signatureString);
+        // Expiration time: current time + 10 minutes (in seconds since epoch)
+        $expirationTime = time() + (10 * 60);
+        
+        // Signature string according to Wompi docs
+        $amountString = (string) $amountInCents;
+        $secret = trim($this->integritySecret);
+        $signatureString = "{$reference}{$amountString}{$currency}{$expirationTime}{$secret}";
+        
+        \Illuminate\Support\Facades\Log::info("Wompi Signature Generation:", [
+            'reference' => $reference,
+            'amount' => $amountInCents,
+            'currency' => $currency,
+            'expiration_time' => $expirationTime,
+            'signature_string' => $signatureString
+        ]);
+        
+        $integrity = hash('sha256', $signatureString);
+        
+        return [
+            'integrity' => $integrity,
+            'expiration_time' => $expirationTime
+        ];
     }
 
     public function verifyWebhookSignature(array $data, string $signature): bool

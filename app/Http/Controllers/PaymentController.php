@@ -39,28 +39,31 @@ class PaymentController extends Controller
         }
 
         // Generate unique reference
-        // Format: ORDER-{id}-{timestamp} to allow retries with unique references
-        $reference = "ORDER-{$pedido->id}-" . time();
+        // Format: TEST-{id}-{timestamp_ms} to match the working pattern in test_wompi.html
+        // Using milliseconds helps ensure uniqueness and matches the working example
+        $timestampMs = round(microtime(true) * 1000);
+        $reference = "TEST-{$pedido->id}-{$timestampMs}";
         
         $amountInCents = (int) ($pedido->total * 100);
         $currency = 'COP';
 
-        $signature = $this->wompiService->generateIntegritySignature($reference, $amountInCents, $currency);
+        $signatureData = $this->wompiService->generateIntegritySignature($reference, $amountInCents, $currency);
         
         \Illuminate\Support\Facades\Log::info("Wompi Signature Debug:", [
             'reference' => $reference,
             'amount' => $amountInCents,
             'currency' => $currency,
-            'signature' => $signature
+            'signature_integrity' => $signatureData['integrity'],
+            'expiration_time' => $signatureData['expiration_time']
         ]);
 
         $response = [
             'reference' => $reference,
             'amount_in_cents' => $amountInCents,
             'currency' => $currency,
-            'signature' => $signature,
+            'signature' => $signatureData, // Now includes both 'integrity' and 'expiration_time'
             'public_key' => $this->wompiService->getPublicKey(),
-            'redirect_url' => env('FRONTEND_URL', env('APP_URL')) . "/client/orders", 
+            'redirect_url' => env('FRONTEND_URL', env('APP_URL')) . "/client/gracias", 
         ];
 
         \Illuminate\Support\Facades\Log::info("🚀 Wompi Init Response:", $response);
