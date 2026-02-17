@@ -43,27 +43,26 @@ class PaymentController extends Controller
         // Using milliseconds helps ensure uniqueness and matches the working example
         $timestampMs = round(microtime(true) * 1000);
         $reference = "TEST-{$pedido->id}-{$timestampMs}";
-        
-        $amountInCents = (int) ($pedido->total * 100);
+
+        $amountInCents = (int) round($pedido->total * 100);
         $currency = 'COP';
 
         $signatureData = $this->wompiService->generateIntegritySignature($reference, $amountInCents, $currency);
-        
+
         \Illuminate\Support\Facades\Log::info("Wompi Signature Debug:", [
             'reference' => $reference,
             'amount' => $amountInCents,
             'currency' => $currency,
-            'signature_integrity' => $signatureData['integrity'],
-            'expiration_time' => $signatureData['expiration_time']
+            'signature_integrity' => $signatureData['integrity']
         ]);
 
         $response = [
             'reference' => $reference,
             'amount_in_cents' => $amountInCents,
             'currency' => $currency,
-            'signature' => $signatureData, // Now includes both 'integrity' and 'expiration_time'
+            'signature' => $signatureData,
             'public_key' => $this->wompiService->getPublicKey(),
-            'redirect_url' => env('FRONTEND_URL', env('APP_URL')) . "/client/gracias", 
+            'redirect_url' => env('FRONTEND_URL', env('APP_URL')) . "/client/gracias",
         ];
 
         \Illuminate\Support\Facades\Log::info("🚀 Wompi Init Response:", $response);
@@ -114,7 +113,7 @@ class PaymentController extends Controller
                     'pasarela_respuesta' => json_encode($transaction)
                 ]);
             } elseif ($status === 'VOIDED') {
-                 $pago->update([
+                $pago->update([
                     'estado' => Pago::ESTADO_CANCELADO,
                     'pasarela_respuesta' => json_encode($transaction)
                 ]);
@@ -124,7 +123,6 @@ class PaymentController extends Controller
             }
 
             return response()->json(['status' => 'ok']);
-
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Wompi Webhook Error: ' . $e->getMessage());
             return response()->json(['message' => 'Internal Server Error'], 500);
@@ -156,7 +154,6 @@ class PaymentController extends Controller
                 'message' => 'Pago confirmado exitosamente',
                 'pedido' => $pago->pedido->fresh()->load('items'),
             ]);
-
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error', 'error' => $e->getMessage()], 500);
         }
@@ -214,7 +211,7 @@ class PaymentController extends Controller
             // 6. Send Confirmation Email (Since it wasn't sent at creation for online payments)
             try {
                 // Ensure relationships are loaded for the email template
-                $pedido->load('items.variante.producto'); 
+                $pedido->load('items.variante.producto');
                 $this->emailService->sendOrderConfirmation($pedido->usuario, $pedido);
             } catch (\Exception $e) {
                 \Illuminate\Support\Facades\Log::error("Error sending confirmation email in PaymentController: " . $e->getMessage());

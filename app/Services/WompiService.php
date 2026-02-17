@@ -16,8 +16,8 @@ class WompiService
         $this->privateKey = config('services.wompi.private_key');
         $this->integritySecret = config('services.wompi.integrity_secret');
         $this->eventsSecret = config('services.wompi.events_secret');
-        $this->baseUrl = env('APP_ENV') === 'production' 
-            ? 'https://production.wompi.co/v1' 
+        $this->baseUrl = env('APP_ENV') === 'production'
+            ? 'https://production.wompi.co/v1'
             : 'https://sandbox.wompi.co/v1';
     }
 
@@ -32,27 +32,22 @@ class WompiService
      */
     public function generateIntegritySignature(string $reference, int $amountInCents, string $currency): array
     {
-        // Expiration time: current time + 10 minutes (in seconds since epoch)
-        $expirationTime = time() + (10 * 60);
-        
-        // Signature string according to Wompi docs
+        // Signature string according to Wompi docs (Integrity only)
         $amountString = (string) $amountInCents;
         $secret = trim($this->integritySecret);
-        $signatureString = "{$reference}{$amountString}{$currency}{$expirationTime}{$secret}";
-        
+        $signatureString = "{$reference}{$amountString}{$currency}{$secret}";
+
         \Illuminate\Support\Facades\Log::info("Wompi Signature Generation:", [
             'reference' => $reference,
             'amount' => $amountInCents,
             'currency' => $currency,
-            'expiration_time' => $expirationTime,
             'signature_string' => $signatureString
         ]);
-        
+
         $integrity = hash('sha256', $signatureString);
-        
+
         return [
-            'integrity' => $integrity,
-            'expiration_time' => $expirationTime
+            'integrity' => $integrity
         ];
     }
 
@@ -71,7 +66,7 @@ class WompiService
 
         return $calculatedSignature === $signature;
     }
-    
+
     public function getPublicKey()
     {
         return $this->publicKey;
