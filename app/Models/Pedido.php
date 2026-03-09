@@ -32,8 +32,7 @@ class Pedido extends Model
     const ESTADO_PENDIENTE = 'pendiente';           // Creado, esperando pago
     const ESTADO_PAGADO = 'pagado';                 // Pago confirmado
     const ESTADO_VISTO = 'visto';                   // Admin ha visto el pedido
-    const ESTADO_EMPACADO = 'empacado';             // Pedido empacado
-    const ESTADO_PROCESANDO = 'procesando';         // En preparación (legacy/generic)
+    const ESTADO_DESPACHADO = 'despachado';         // Pedido preparado y entregado al transportista
     const ESTADO_ENVIADO = 'enviado';               // En camino
     const ESTADO_ENTREGADO = 'entregado';           // Completado
     const ESTADO_CANCELADO = 'cancelado';           // Cancelado
@@ -49,10 +48,9 @@ class Pedido extends Model
     {
         return [
             self::ESTADO_PENDIENTE => [self::ESTADO_PAGADO, self::ESTADO_CANCELADO],
-            self::ESTADO_PAGADO => [self::ESTADO_VISTO, self::ESTADO_PROCESANDO, self::ESTADO_REEMBOLSADO],
-            self::ESTADO_VISTO => [self::ESTADO_EMPACADO, self::ESTADO_REEMBOLSADO],
-            self::ESTADO_EMPACADO => [self::ESTADO_ENVIADO, self::ESTADO_REEMBOLSADO],
-            self::ESTADO_PROCESANDO => [self::ESTADO_ENVIADO, self::ESTADO_REEMBOLSADO],
+            self::ESTADO_PAGADO => [self::ESTADO_VISTO, self::ESTADO_REEMBOLSADO],
+            self::ESTADO_VISTO => [self::ESTADO_DESPACHADO, self::ESTADO_REEMBOLSADO],
+            self::ESTADO_DESPACHADO => [self::ESTADO_ENVIADO, self::ESTADO_REEMBOLSADO],
             self::ESTADO_ENVIADO => [self::ESTADO_ENTREGADO],
             // Estados finales no tienen transiciones
             self::ESTADO_ENTREGADO => [],

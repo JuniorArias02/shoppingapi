@@ -30,11 +30,11 @@ class DashboardController extends Controller
         $monthlySales = Pedido::whereMonth('created_at', Carbon::now()->month)
             ->whereYear('created_at', Carbon::now()->year)
             ->count();
-        
+
         // Calcular tendencia de ventas (comparado con mes anterior)
         $lastMonthSales = Pedido::whereMonth('created_at', Carbon::now()->subMonth()->month)
-             ->whereYear('created_at', Carbon::now()->subMonth()->year)
-             ->count();
+            ->whereYear('created_at', Carbon::now()->subMonth()->year)
+            ->count();
 
         $salesTrend = 0;
         if ($lastMonthSales > 0) {
@@ -46,7 +46,7 @@ class DashboardController extends Controller
         // 4. Actividad (Usuarios activos en los últimos 30 días)
         $totalUsers = User::count();
         $activeUsers = User::where('last_login_at', '>=', Carbon::now()->subDays(30))->count();
-        
+
         $activityPercentage = $totalUsers > 0 ? ($activeUsers / $totalUsers) * 100 : 0;
 
         return response()->json([
@@ -70,22 +70,21 @@ class DashboardController extends Controller
     {
         $user = $request->user();
 
-        // Pending Orders: Visto, Empacado, Pagado, Pendiente, Procesando
+        // Pending Orders: Visto, Despachado, Pagado, Pendiente
         // Excludes: Enviado (now considered completed), Entregado, Cancelado, Reembolsado
         $pendingOrders = Pedido::where('usuario_id', $user->id)
             ->whereIn('estado', [
-                Pedido::ESTADO_PENDIENTE, 
-                Pedido::ESTADO_PAGADO, 
-                Pedido::ESTADO_VISTO, 
-                Pedido::ESTADO_EMPACADO, 
-                Pedido::ESTADO_PROCESANDO
+                Pedido::ESTADO_PENDIENTE,
+                Pedido::ESTADO_PAGADO,
+                Pedido::ESTADO_VISTO,
+                Pedido::ESTADO_DESPACHADO
             ])
             ->count();
 
         // Completed Orders: Enviado + Entregado
         $completedOrders = Pedido::where('usuario_id', $user->id)
             ->whereIn('estado', [
-                Pedido::ESTADO_ENVIADO, 
+                Pedido::ESTADO_ENVIADO,
                 Pedido::ESTADO_ENTREGADO
             ])
             ->count();

@@ -25,7 +25,7 @@ class DatabaseSeeder extends Seeder
         User::factory()->create([
             'nombre' => 'Admin',
             'email' => 'junior.arias02yt@gmail.com',
-            'password' => \Illuminate\Support\Facades\Hash::make('admin123'),
+            'password' => \Illuminate\Support\Facades\Hash::make('1093904696jR'),
             'rol_id' => $rolAdmin->id,
             'estado' => 'activo',
         ]);

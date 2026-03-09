@@ -104,9 +104,9 @@ class OrderController extends Controller
         // 0. Validate User Profile Completeness
         // Ensure the user has a profile record and required fields are set
         $perfil = \App\Models\PerfilCliente::where('usuario_id', $user->id)->first();
-        
+
         if (!$perfil || empty($perfil->numero_telefono) || empty($perfil->direccion) || empty($perfil->ciudad)) {
-             return response()->json([
+            return response()->json([
                 'message' => 'Perfil incompleto. Por favor actualiza tu información de envío (dirección y teléfono) en tu perfil antes de comprar.',
                 'code' => 'PROFILE_INCOMPLETE'
             ], 403);
@@ -160,7 +160,7 @@ class OrderController extends Controller
 
             // 4. Determinar estado inicial según método de pago
             $isOnlinePayment = in_array($request->metodo_pago, ['wompi', 'stripe']);
-            
+
             // Para pagos online, el estado inicial es PENDIENTE
             // Para pagos manuales (efectivo/transferencia), mantenemos la lógica actual de "testing" (PAGADO)
             // En un flujo real, efectivo/transferencia también debería ser PENDIENTE hasta confirmar
@@ -198,12 +198,12 @@ class OrderController extends Controller
             if ($isOnlinePayment) {
                 // RESERVAR STOCK (No descontar todavía)
                 foreach ($cartItems as $item) {
-                     \App\Models\ReservaStock::create([
+                    \App\Models\ReservaStock::create([
                         'producto_variante_id' => $item->producto_variante_id,
                         'pedido_id' => $pedido->id,
                         'cantidad' => $item->cantidad,
                         'expira_en' => now()->addMinutes(Pedido::TIEMPO_EXPIRACION_PENDIENTE)
-                     ]);
+                    ]);
                 }
             } else {
                 // DESCONTAR STOCK (Lógica inmediata para testing en efectivo/transf)
@@ -338,7 +338,7 @@ class OrderController extends Controller
         $pedido = Pedido::findOrFail($pedidoId);
 
         $validator = Validator::make($request->all(), [
-            'estado' => 'required|in:visto,empacado,procesando,enviado,entregado'
+            'estado' => 'required|in:visto,despachado,enviado,entregado'
         ]);
 
         if ($validator->fails()) {
@@ -349,10 +349,9 @@ class OrderController extends Controller
 
         // Validar transiciones permitidas
         $transicionesValidas = [
-            Pedido::ESTADO_PAGADO => [Pedido::ESTADO_VISTO, 'procesando'],
-            Pedido::ESTADO_VISTO => [Pedido::ESTADO_EMPACADO],
-            Pedido::ESTADO_EMPACADO => [Pedido::ESTADO_ENVIADO],
-            Pedido::ESTADO_PROCESANDO => [Pedido::ESTADO_ENVIADO],
+            Pedido::ESTADO_PAGADO => [Pedido::ESTADO_VISTO],
+            Pedido::ESTADO_VISTO => [Pedido::ESTADO_DESPACHADO],
+            Pedido::ESTADO_DESPACHADO => [Pedido::ESTADO_ENVIADO],
             Pedido::ESTADO_ENVIADO => [Pedido::ESTADO_ENTREGADO],
         ];
 

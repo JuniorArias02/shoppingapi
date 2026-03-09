@@ -28,16 +28,16 @@ class OrderStatusEmail extends Mailable
         $this->user = $user;
         $this->pedido = $pedido;
         $this->status = $status;
-        
+
         // Configurar mensaje según estado
-        switch($status) {
+        switch ($status) {
             case 'visto':
                 $this->titulo = "¡Hemos visto tu pedido!";
                 $this->mensaje = "Tu pedido #{$pedido->id} ha sido revisado por nuestro equipo y pronto comenzaremos a prepararlo.";
                 break;
-            case 'empacado':
-                $this->titulo = "¡Tu pedido está listo!";
-                $this->mensaje = "Tu pedido #{$pedido->id} ya ha sido empacado y está esperando ser enviado.";
+            case 'despachado':
+                $this->titulo = "¡Tu pedido está despachado!";
+                $this->mensaje = "Tu pedido #{$pedido->id} ya ha sido preparado y entregado al transportista.";
                 break;
             case 'enviado':
                 $this->titulo = "¡Tu pedido va en camino!";

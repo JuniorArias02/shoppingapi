@@ -187,6 +187,27 @@ class PaymentController extends Controller
                 // Decrement physical stock
                 $variante->decrement('stock', $item->cantidad);
 
+                // Refresh variant to get updated stock
+                $variante->refresh();
+
+                // If stock reaches 0, disable variant
+                if ($variante->stock <= 0) {
+                    $variante->update(['activo' => 0]);
+
+                    // Check if parent product should also be disabled
+                    $producto = $variante->producto;
+                    if ($producto) {
+                        $hasActiveStock = $producto->variantes()
+                            ->where('activo', 1)
+                            ->where('stock', '>', 0)
+                            ->exists();
+
+                        if (!$hasActiveStock) {
+                            $producto->update(['activo' => 0]);
+                        }
+                    }
+                }
+
                 // Record movement
                 MovimientoStock::create([
                     'producto_variante_id' => $variante->id,
