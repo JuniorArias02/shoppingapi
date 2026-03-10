@@ -1,8 +1,8 @@
       <?php
 
-return [
+        return [
 
-    /*
+            /*
     |--------------------------------------------------------------------------
     | Cross-Origin Resource Sharing (CORS) Configuration
     |--------------------------------------------------------------------------
@@ -15,23 +15,25 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+            'paths' => ['api/*', 'sanctum/csrf-cookie'],
 
-    'allowed_methods' => ['*'],
+            'allowed_methods' => ['*'],
 
-    'allowed_origins' => [
-        'http://localhost:5173',
-        'https://shoppingcucuta.vercel.app',
-    ], // Explicit origin needed for credentials
+            'allowed_origins' => [
+                'http://localhost:5173',
+                'https://shoppingcucuta.vercel.app',
+                'https://shoppingcucuta.com',
+                'https://www.shoppingcucuta.com',
+            ], // Explicit origin needed for credentials
 
-    'allowed_origins_patterns' => [],
+            'allowed_origins_patterns' => [],
 
-    'allowed_headers' => ['*'],
+            'allowed_headers' => ['*'],
 
-    'exposed_headers' => [],
+            'exposed_headers' => [],
 
-    'max_age' => 0,
+            'max_age' => 0,
 
-    'supports_credentials' => true, // Must be true for React to receive cookies
+            'supports_credentials' => true, // Must be true for React to receive cookies
 
-];
+        ];
