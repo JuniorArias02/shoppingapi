@@ -71,7 +71,7 @@ class ProductController extends Controller
                     $path = $file->store('products', 'public');
                     ProductoImagen::create([
                         'producto_id' => $producto->id,
-                        'url_imagen' => \Illuminate\Support\Facades\Storage::disk('public')->url($path)
+                        'url_imagen' => '/storage/' . $path
                     ]);
                 }
             }
