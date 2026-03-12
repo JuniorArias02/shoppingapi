@@ -12,9 +12,8 @@ Route::get('/', function () {
 /**
  * PUENTE DE ALMACENAMIENTO (SOLUCIÓN HOSTINGER)
  * --------------------------------------------
- * En Hostinger, el comando 'storage:link' suele fallar o dar problemas con subdominios.
- * Esta ruta intercepta cualquier pedido a /storage/ y entrega el archivo manualmente
- * buscando en la carpeta privada 'storage/app/public'.
+ * Usamos esta ruta para capturar cualquier pedido a /storage/ y servirlo
+ * desde la carpeta protegida de Laravel, evitando problemas de symlinks.
  */
 Route::get('/storage/{path}', function ($path) {
     $path = storage_path('app/public/' . $path);
