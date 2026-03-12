@@ -33,7 +33,7 @@ Route::post('/products/{id}/rate', [ProductController::class, 'rate']);
 Route::post('/products/{id}/like', [ProductController::class, 'toggleLike']);
 Route::post('/payments/wompi/webhook', [App\Http\Controllers\PaymentController::class, 'handleWompiWebhook']);
 
-// Puente de Medios (Evita el error 403 al no chocar con la carpeta física 'storage')
+// Puente de Medios (Servir imágenes como backup si el symlink falla)
 Route::get('/media-bridge/{path}', function ($path) {
     $path = storage_path('app/public/' . $path);
     if (!file_exists($path)) {
@@ -43,6 +43,23 @@ Route::get('/media-bridge/{path}', function ($path) {
     $type = mime_content_type($path);
     return response($file)->header('Content-Type', $type);
 })->where('path', '.*');
+
+// FIXER DE STORAGE PARA HOSTINGER
+// Visita /api/fix-storage en el navegador una vez
+Route::get('/fix-storage', function() {
+    $target = storage_path('app/public');
+    $shortcut = public_path('storage');
+    
+    if (is_link($shortcut) || file_exists($shortcut)) {
+        return "El enlace ya existe. Intenta borrar la carpeta 'public/storage' manualmente e intenta de nuevo.";
+    }
+    
+    if (symlink($target, $shortcut)) {
+        return "¡Enlace simbólico creado con éxito! Las imágenes ya deberían verse.";
+    } else {
+        return "Error al crear el enlace. Verifica si tu hosting permite la función symlink().";
+    }
+});
 
 // Protected Routes (Admin)
 Route::middleware('auth:sanctum')->group(function () {
