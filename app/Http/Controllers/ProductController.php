@@ -53,7 +53,7 @@ class ProductController extends Controller
             'descuento' => 'nullable|integer|min:0|max:100',
             // Allow both file uploads and URL strings (for flexibility)
             'imagenes' => 'nullable|array',
-            'imagenes.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'imagenes.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:20480',
             'variantes' => 'array',
         ]);
 
