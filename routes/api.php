@@ -33,6 +33,17 @@ Route::post('/products/{id}/rate', [ProductController::class, 'rate']);
 Route::post('/products/{id}/like', [ProductController::class, 'toggleLike']);
 Route::post('/payments/wompi/webhook', [App\Http\Controllers\PaymentController::class, 'handleWompiWebhook']);
 
+// Storage Bridge (Servir imágenes por API para Hostinger)
+Route::get('/storage/{path}', function ($path) {
+    $path = storage_path('app/public/' . $path);
+    if (!file_exists($path)) {
+        abort(404);
+    }
+    $file = file_get_contents($path);
+    $type = mime_content_type($path);
+    return response($file)->header('Content-Type', $type);
+})->where('path', '.*');
+
 // Protected Routes (Admin)
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/categories', [CategoryController::class, 'store']);
