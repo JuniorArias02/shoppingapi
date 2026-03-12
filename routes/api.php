@@ -65,4 +65,5 @@ Route::middleware('auth:sanctum')->group(function () {
     // User Settings
     Route::put('/profile', [AuthController::class, 'updateProfile']);
     Route::put('/password', [AuthController::class, 'changePassword']);
+    Route::post('/confirm-age', [AuthController::class, 'confirmAge']);
 });

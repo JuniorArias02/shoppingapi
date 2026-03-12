@@ -27,6 +27,7 @@ class User extends Authenticatable
         'rol_id',
         'estado',
         'last_login_at',
+        'mayor_edad',
     ];
 
     public function rol()
@@ -59,6 +60,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'mayor_edad' => 'boolean',
         ];
     }
 }

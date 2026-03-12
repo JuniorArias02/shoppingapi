@@ -223,4 +223,18 @@ class AuthController extends Controller
             'user' => $user->load('perfil')
         ]);
     }
+    // Confirmar mayoría de edad
+    public function confirmAge(Request $request)
+    {
+        $user = $request->user();
+        
+        $user->update([
+            'mayor_edad' => true
+        ]);
+
+        return response()->json([
+            'message' => 'Edad confirmada exitosamente',
+            'user' => $user->load('perfil')
+        ]);
+    }
 }
