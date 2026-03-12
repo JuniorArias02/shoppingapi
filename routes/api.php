@@ -33,8 +33,8 @@ Route::post('/products/{id}/rate', [ProductController::class, 'rate']);
 Route::post('/products/{id}/like', [ProductController::class, 'toggleLike']);
 Route::post('/payments/wompi/webhook', [App\Http\Controllers\PaymentController::class, 'handleWompiWebhook']);
 
-// Storage Bridge (Servir imágenes por API para Hostinger)
-Route::get('/storage/{path}', function ($path) {
+// Puente de Medios (Evita el error 403 al no chocar con la carpeta física 'storage')
+Route::get('/media-bridge/{path}', function ($path) {
     $path = storage_path('app/public/' . $path);
     if (!file_exists($path)) {
         abort(404);
