@@ -12,10 +12,10 @@ class WompiService
 
     public function __construct()
     {
-        $this->publicKey = config('services.wompi.public_key');
-        $this->privateKey = config('services.wompi.private_key');
-        $this->integritySecret = config('services.wompi.integrity_secret');
-        $this->eventsSecret = config('services.wompi.events_secret');
+        $this->publicKey = trim(config('services.wompi.public_key') ?? '');
+        $this->privateKey = trim(config('services.wompi.private_key') ?? '');
+        $this->integritySecret = trim(config('services.wompi.integrity_secret') ?? '');
+        $this->eventsSecret = trim(config('services.wompi.events_secret') ?? '');
         $this->baseUrl = env('APP_ENV') === 'production'
             ? 'https://production.wompi.co/v1'
             : 'https://sandbox.wompi.co/v1';
