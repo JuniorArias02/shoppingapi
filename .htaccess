@@ -26,6 +26,7 @@
     RewriteRule ^(.*)/$ /$1 [L,R=301]
 
     # Handle Storage Folder via Laravel (Bridge)
+    RewriteCond %{REQUEST_URI} ^/storage/.*$
     RewriteRule ^storage/(.*)$ index.php/api/media-bridge/$1 [L]
 
     # Handle Front Controller...
