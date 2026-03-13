@@ -134,6 +134,10 @@ class PaymentController extends Controller
      */
     public function confirm(Request $request, $pagoId)
     {
+        if ($request->user()->rol_id !== 1) {
+            return response()->json(['message' => 'No tienes permisos para realizar esta acción'], 403);
+        }
+        
         $pago = Pago::findOrFail($pagoId);
 
         if ($pago->estado !== Pago::ESTADO_PENDIENTE) {

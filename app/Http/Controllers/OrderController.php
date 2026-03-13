@@ -26,9 +26,9 @@ class OrderController extends Controller
     {
         $user = $request->user();
 
-        // Admin (1) and Vendedor (2) see all orders
-        // Cliente (3) sees only their own orders
-        if (in_array($user->rol_id, [1, 2])) {
+        // Admin (1) sees all orders
+        // Cliente (2) sees only their own orders
+        if ($user->rol_id === 1) {
             $query = Pedido::with(['items.variante.producto.imagenes', 'usuario.perfil'])
                 ->orderBy('created_at', 'desc');
         } else {
@@ -67,8 +67,8 @@ class OrderController extends Controller
                 })
             ];
 
-            // Add client info for Admin/Vendedor
-            if (in_array($user->rol_id, [1, 2])) {
+            // Add client info for Admin only
+            if ($user->rol_id === 1) {
                 $orderData['cliente'] = [
                     'nombre' => $order->usuario->nombre,
                     'email' => $order->usuario->email,

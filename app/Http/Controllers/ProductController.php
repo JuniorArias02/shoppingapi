@@ -134,7 +134,6 @@ class ProductController extends Controller
     public function rate(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
-            'usuario_id' => 'required|exists:usuarios,id',
             'rating' => 'required|integer|min:1|max:5',
             'comment' => 'nullable|string'
         ]);
@@ -150,7 +149,7 @@ class ProductController extends Controller
 
         $rating = \App\Models\ProductRating::create([
             'producto_id' => $id,
-            'usuario_id' => $request->usuario_id,
+            'usuario_id' => $request->user()->id,
             'rating' => $request->rating,
             'comment' => $request->comment
         ]);
@@ -161,17 +160,11 @@ class ProductController extends Controller
     public function toggleLike(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
-            'usuario_id' => 'required|exists:usuarios,id'
         ]);
 
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
         }
-
-        $userId = $request->usuario_id;
-        $like = \App\Models\ProductLike::where('producto_id', $id)
-            ->where('usuario_id', $userId)
-            ->first();
 
         if ($like) {
             $like->delete();
@@ -179,7 +172,7 @@ class ProductController extends Controller
         } else {
             \App\Models\ProductLike::create([
                 'producto_id' => $id,
-                'usuario_id' => $userId
+                'usuario_id' => $request->user()->id
             ]);
             return response()->json(['message' => 'Liked', 'liked' => true]);
         }

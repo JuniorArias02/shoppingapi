@@ -54,7 +54,9 @@ class CategoriaSeeder extends Seeder
             [
                 'nombre' => 'Juguetes',
                 'activa' => true,
-                'children' => []
+                'children' => [
+                    ['nombre' => '+18', 'activa' => true]
+                    ]
             ]
         ];
 
