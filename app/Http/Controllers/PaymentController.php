@@ -192,37 +192,39 @@ class PaymentController extends Controller
             foreach ($pedido->items as $item) {
                 $variante = $item->variante;
 
-                // Decrement physical stock
-                $variante->decrement('stock', $item->cantidad);
+                if ($variante) {
+                    // Decrement physical stock
+                    $variante->decrement('stock', $item->cantidad);
 
-                // Refresh variant to get updated stock
-                $variante->refresh();
+                    // Refresh variant to get updated stock
+                    $variante->refresh();
 
-                // If stock reaches 0, disable variant
-                if ($variante->stock <= 0) {
-                    $variante->update(['activo' => 0]);
+                    // If stock reaches 0, disable variant
+                    if ($variante->stock <= 0) {
+                        $variante->update(['activo' => 0]);
 
-                    // Check if parent product should also be disabled
-                    $producto = $variante->producto;
-                    if ($producto) {
-                        $hasActiveStock = $producto->variantes()
-                            ->where('activo', 1)
-                            ->where('stock', '>', 0)
-                            ->exists();
+                        // Check if parent product should also be disabled
+                        $producto = $variante->producto;
+                        if ($producto) {
+                            $hasActiveStock = $producto->variantes()
+                                ->where('activo', 1)
+                                ->where('stock', '>', 0)
+                                ->exists();
 
-                        if (!$hasActiveStock) {
-                            $producto->update(['activo' => 0]);
+                            if (!$hasActiveStock) {
+                                $producto->update(['activo' => 0]);
+                            }
                         }
                     }
-                }
 
-                // Record movement
-                MovimientoStock::create([
-                    'producto_variante_id' => $variante->id,
-                    'tipo' => MovimientoStock::TIPO_SALIDA,
-                    'cantidad' => -$item->cantidad,
-                    'motivo' => "Venta - Pedido #{$pedido->id} ({$motivo})",
-                ]);
+                    // Record movement
+                    MovimientoStock::create([
+                        'producto_variante_id' => $variante->id,
+                        'tipo' => MovimientoStock::TIPO_SALIDA,
+                        'cantidad' => -$item->cantidad,
+                        'motivo' => "Venta - Pedido #{$pedido->id} ({$motivo})",
+                    ]);
+                }
             }
 
             // 4. Delete Reserves
