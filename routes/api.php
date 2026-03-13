@@ -35,13 +35,15 @@ Route::post('/payments/wompi/webhook', [App\Http\Controllers\PaymentController::
 
 // Puente de Medios (Servir imágenes como backup si el symlink falla)
 Route::get('/media-bridge/{path}', function ($path) {
-    $path = storage_path('app/public/' . $path);
-    if (!file_exists($path)) {
+    $fullPath = storage_path('app/public/' . $path);
+    if (!file_exists($fullPath)) {
         abort(404);
     }
-    $file = file_get_contents($path);
-    $type = mime_content_type($path);
-    return response($file)->header('Content-Type', $type);
+    
+    // Limpiar cualquier buffer de salida para evitar corrupción de la imagen
+    if (ob_get_length()) ob_end_clean();
+    
+    return response()->file($fullPath);
 })->where('path', '.*');
 
 // FIXER DE STORAGE PARA HOSTINGER
