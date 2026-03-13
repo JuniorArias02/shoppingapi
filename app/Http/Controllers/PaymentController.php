@@ -38,11 +38,10 @@ class PaymentController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        // Generate unique reference
-        // Format: TEST-{id}-{timestamp_ms} to match the working pattern in test_wompi.html
-        // Using milliseconds helps ensure uniqueness and matches the working example
+        // Format: ORDER-{id}-{timestamp_ms}
+        // Using ORDER- prefix consistently for identification in webhooks
         $timestampMs = round(microtime(true) * 1000);
-        $reference = "TEST-{$pedido->id}-{$timestampMs}";
+        $reference = "ORDER-{$pedido->id}-{$timestampMs}";
 
         $amountInCents = (int) round($pedido->total * 100);
         $currency = 'COP';
@@ -80,12 +79,17 @@ class PaymentController extends Controller
             $signature = $data['signature']['checksum'] ?? null;
 
             if (!$signature || !$this->wompiService->verifyWebhookSignature($data, $signature)) {
+                \Illuminate\Support\Facades\Log::warning('⚠️ Wompi Webhook: Invalid Signature', ['data' => $data]);
                 return response()->json(['message' => 'Invalid signature'], 400);
             }
+
+            \Illuminate\Support\Facades\Log::info('✅ Wompi Webhook: Signature Verified', ['data' => $data]);
 
             $transaction = $data['data']['transaction'];
             $reference = $transaction['reference'];
             $status = $transaction['status']; // APPROVED, DECLINED, VOIDED, ERROR
+
+            \Illuminate\Support\Facades\Log::info("💳 Wompi Webhook Processing: {$reference}", ['status' => $status]);
 
             // Extract Order ID
             if (!preg_match('/^ORDER-(\d+)-/', $reference, $matches)) {
