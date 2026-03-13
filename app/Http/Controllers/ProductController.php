@@ -71,7 +71,7 @@ class ProductController extends Controller
                     $path = $file->store('products', 'public');
                     ProductoImagen::create([
                         'producto_id' => $producto->id,
-                        'url_imagen' => '/storage/' . $path
+                        'url_imagen' => '/api/media-bridge/' . $path
                     ]);
                 }
             }
