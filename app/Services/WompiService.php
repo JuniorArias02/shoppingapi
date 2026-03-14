@@ -67,6 +67,26 @@ class WompiService
         return $calculatedSignature === $signature;
     }
 
+    /**
+     * Get Transaction details from Wompi API
+     */
+    public function getTransaction(string $transactionId): ?array
+    {
+        try {
+            $response = \Illuminate\Support\Facades\Http::get("{$this->baseUrl}/transactions/{$transactionId}");
+
+            if ($response->successful()) {
+                return $response->json()['data'];
+            }
+
+            \Illuminate\Support\Facades\Log::error("Wompi getTransaction Error: " . $response->body());
+            return null;
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Wompi getTransaction Exception: " . $e->getMessage());
+            return null;
+        }
+    }
+
     public function getPublicKey()
     {
         return $this->publicKey;

@@ -134,6 +134,69 @@ class PaymentController extends Controller
     }
 
     /**
+     * Verify Wompi Transaction from Frontend Success
+     */
+    public function verifyTransaction(Request $request)
+    {
+        $request->validate([
+            'transaction_id' => 'required|string'
+        ]);
+
+        $transactionId = $request->transaction_id;
+
+        \Illuminate\Support\Facades\Log::info("🔍 Verifying Wompi Transaction (Frontend Request): {$transactionId}");
+
+        $transaction = $this->wompiService->getTransaction($transactionId);
+
+        if (!$transaction) {
+            return response()->json(['message' => 'No se pudo verificar la transacción con Wompi'], 404);
+        }
+
+        $reference = $transaction['reference'];
+        $status = $transaction['status'];
+
+        \Illuminate\Support\Facades\Log::info("💳 Wompi Verification Status: {$status} for reference {$reference}");
+
+        // Extract Order ID
+        if (!preg_match('/^ORDER-(\d+)-/', $reference, $matches)) {
+            return response()->json(['message' => 'Formato de referencia inválido'], 400);
+        }
+        $pedidoId = $matches[1];
+        $pedido = Pedido::find($pedidoId);
+
+        if (!$pedido) {
+            return response()->json(['message' => 'Pedido no encontrado'], 404);
+        }
+
+        $pago = Pago::where('pedido_id', $pedido->id)->first();
+
+        if (!$pago) {
+            return response()->json(['message' => 'Registro de pago no encontrado'], 404);
+        }
+
+        // Si ya está completado, simplemente retornar éxito
+        if ($pago->estado === Pago::ESTADO_COMPLETADO) {
+            return response()->json([
+                'status' => 'APPROVED',
+                'message' => 'Pago ya procesado previamente'
+            ]);
+        }
+
+        if ($status === 'APPROVED') {
+            $this->finalizePayment($pago, $pedido, $transaction, 'Frontend Verify');
+            return response()->json([
+                'status' => 'APPROVED',
+                'message' => 'Pago verificado y completado'
+            ]);
+        }
+
+        return response()->json([
+            'status' => $status,
+            'message' => "La transacción se encuentra en estado: {$status}"
+        ]);
+    }
+
+    /**
      * Confirmar pago manual (o fallback)
      */
     public function confirm(Request $request, $pagoId)

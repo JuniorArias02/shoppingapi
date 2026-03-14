@@ -87,6 +87,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Payment Routes
     Route::post('/payments/wompi/init', [App\Http\Controllers\PaymentController::class, 'initWompiTransaction']);
+    Route::post('/payments/wompi/verify', [App\Http\Controllers\PaymentController::class, 'verifyTransaction']);
     Route::post('/payments/{pago}/confirm', [App\Http\Controllers\PaymentController::class, 'confirm']);
 
     // Favorites
