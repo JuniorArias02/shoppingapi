@@ -50,6 +50,12 @@ class OrderController extends Controller
                 'fecha' => $order->created_at->format('Y-m-d'),
                 'total' => $order->total,
                 'estado' => $order->estado,
+                'shipping' => [
+                    'direccion' => $order->direccion_envio,
+                    'ciudad' => $order->ciudad,
+                    'codigo_postal' => $order->codigo_postal,
+                    'telefono' => $order->telefono,
+                ],
                 'items_count' => $order->items->sum('cantidad'),
                 'preview_images' => $order->items->take(3)->map(function ($item) {
                     $img = $item->variante->producto->imagenes->first();
@@ -76,6 +82,7 @@ class OrderController extends Controller
                     'direccion' => $order->usuario->perfil->direccion ?? 'N/A',
                     'ciudad' => $order->usuario->perfil->ciudad ?? 'N/A',
                     'departamento' => $order->usuario->perfil->departamento ?? 'N/A',
+                    'codigo_postal' => $order->usuario->perfil->codigo_postal ?? 'N/A',
                 ];
             }
 
