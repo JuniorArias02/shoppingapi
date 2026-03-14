@@ -23,9 +23,17 @@ class DatabaseSeeder extends Seeder
         $rolAdmin = \App\Models\Rol::where('nombre', 'administrador')->first();
 
         User::factory()->create([
-            'nombre' => 'Admin',
+            'nombre' => 'SOPORTE PAGINA',
             'email' => 'junior.arias02yt@gmail.com',
             'password' => \Illuminate\Support\Facades\Hash::make('1093904696jR'),
+            'rol_id' => $rolAdmin->id,
+            'estado' => 'activo',
+        ]);
+
+        User::factory()->create([
+            'nombre' => 'Yohandry devia',
+            'email' => 'rosasyohandry7@gmail.com',
+            'password' => \Illuminate\Support\Facades\Hash::make('rosasyohandry7@'),
             'rol_id' => $rolAdmin->id,
             'estado' => 'activo',
         ]);
